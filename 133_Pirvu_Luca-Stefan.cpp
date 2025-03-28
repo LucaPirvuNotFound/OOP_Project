@@ -1,138 +1,54 @@
 /*
-    Project: LeetCode Simulation
-    
-    Description:
-    This program simulates a simplified version of an online coding platform like LeetCode.
-    It defines three main classes:
-    - Person: Represents a user who solves problems.
-    - Problem: Represents a coding problem with a difficulty level and associated submissions.
-    - Submission: Represents a user's submission, storing code lines and allowing execution.
-    
-    Input Data:
-    - A predefined set of users (Person objects) with names and IDs.
-    - A predefined set of problems (Problem objects) with unique IDs, difficulty levels, and descriptions.
-    - Simulated submissions that track code solutions.
-    
-    Operations:
-    - Create and manipulate objects of each class.
-    - Simulate users solving problems and making submissions.
-    - Store and display submission details.
-    - Execute C++ code from submissions by writing to a file, compiling, and running it.
-    
-    Implemented Features:
-    - Constructors with parameters for each class.
-    - Copy constructor, copy assignment operator, and destructor for each class.
-    - Operator << overload for formatted output.
-    - Private attributes and const methods where applicable.
-    - At least three non-trivial member functions, including problem-solving simulation.
+Proiect: Simulare LeetCode
+Descriere:
+
+Acest program simulează o versiune simplificată a unei platforme online de codare, precum LeetCode.
+Definește trei clase principale:
+
+    Person: Reprezintă un utilizator care rezolvă probleme.
+    Problem: Reprezintă o problemă de programare cu un nivel de dificultate și soluții asociate.
+    Submission: Reprezintă o trimitere a unui utilizator, 
+    stocând liniile de cod și permițând executarea acestuia.
+
+Date de intrare:
+
+    Un set predefinit de utilizatori (obiecte Person) cu nume și ID-uri.
+    Un set predefinit de probleme (obiecte Problem) cu ID-uri unice, niveluri de dificultate și descrieri.
+    Trimiteri simulate care urmăresc soluțiile de cod.
+
+Funcționalități implementate:
+    Constructori cu parametri pentru fiecare clasă.
+    Constructor de copiere, operator de atribuire prin copiere și destructor pentru fiecare clasă.
+    Supraincarcarea operatorului << pentru afișare formatată.
+    Atribute private și metode const, unde este aplicabil.
+    Proiectul contine si 3 functii membre, dintre care una mai complexa
 */
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <fstream>
-#include <cstdlib>
+#include "133_Pirvu_Luca-Stefan.h"
 
-class Person {
-private:
-    std::string name;
-    int userID;
-public:
-    Person(const std::string& name, int userID) : name(name), userID(userID) {}
-    Person(const Person& other) : name(other.name), userID(other.userID) {}
-    Person& operator=(const Person& other) {
-        if (this != &other) {
-            name = other.name;
-            userID = other.userID;
-        }
-        return *this;
-    }
-    ~Person() {}
+void Submission::runSubmission() const {
+    std::ofstream file("submission.cpp");
     
-    friend std::ostream& operator<<(std::ostream& os, const Person& p) {
-        os << "User: " << p.name << " (ID: " << p.userID << ")";
-        return os;
+    for (const auto& line : m_code) {
+        file << line << "\n";
     }
-};
+    file.close();
 
-class Submission {
-private:
-    Person user;
-    std::vector<std::string> code;
-public:
-    Submission(const Person& user, const std::vector<std::string>& code)
-        : user(user), code(code) {}
-    Submission(const Submission& other)
-        : user(other.user), code(other.code) {}
-    Submission& operator=(const Submission& other) {
-        if (this != &other) {
-            user = other.user;
-            code = other.code;
-        }
-        return *this;
-    }
-    ~Submission() {}
-    
-    friend std::ostream& operator<<(std::ostream& os, const Submission& s) {
-        os << s.user << " submitted code:\n";
-        for (const auto& line : s.code) {
-            os << line << "\n";
-        }
-        return os;
-    }
+    std::cout << std::endl << "Running the submission by " << m_user << ":" << std::endl;
+    std::system("g++ submission.cpp -o submission.exe");
+    std::system("./submission.exe");
+}
 
-    void run_submission() const {
-        std::ofstream file("submission.cpp");
-        
-        for (const auto& line : code) {
-            file << line << "\n";
-        }
-        file.close();
+void Problem::AddSubmission(const Submission& submission) {
+    m_submissions.push_back(submission);
+}
 
-        std::cout << "Running the submission by " << user << ":" << std::endl;
-        std::system("g++ submission.cpp -o submission");
-        std::system(".\\submission.exe");
+void Problem::DisplaySubmissions() const {
+    std::cout << "Submissions for Problem " << m_problemID << ":\n";
+    for (const auto& submission : m_submissions) {
+        std::cout << submission << "\n";
     }
-};
-
-class Problem {
-private:
-    int problemID;
-    std::string difficulty;
-    std::string description;
-    std::vector<Submission> submissions;
-public:
-    Problem(int id, const std::string& difficulty, const std::string& description)
-        : problemID(id), difficulty(difficulty), description(description) {}
-    Problem(const Problem& other) 
-        : problemID(other.problemID), difficulty(other.difficulty), description(other.description), submissions(other.submissions) {}
-    Problem& operator=(const Problem& other) {
-        if (this != &other) {
-            problemID = other.problemID;
-            difficulty = other.difficulty;
-            description = other.description;
-            submissions = other.submissions;
-        }
-        return *this;
-    }
-    ~Problem() {}
-    
-    void AddSubmission(const Submission& submission) {
-        submissions.push_back(submission);
-    }
-    
-    void DisplaySubmissions() const {
-        std::cout << "Submissions for Problem " << problemID << ":\n";
-        for (const auto& submission : submissions) {
-            std::cout << submission << "\n";
-        }
-    }
-    
-    friend std::ostream& operator<<(std::ostream& os, const Problem& p) {
-        os << "Problem " << p.problemID << " (" << p.difficulty << "): " << p.description;
-        return os;
-    }
-};
+}
 
 int main() {
     Person user1("Alice", 1);
@@ -140,23 +56,38 @@ int main() {
     
     Problem problem1(101, "Easy", "Find the sum of two numbers.");
     Problem problem2(102, "Hard", "Implement a balanced binary search tree.");
-    
+    Problem problem3(103, "Medium", "Given an integer p, return 1 if p is prime, 0 otherwise");
+
     std::vector<std::string> code1 = {"#include <iostream>", "int main() {", "    std::cout << 2 + 2;", "    return 0;", "}"};
     std::vector<std::string> code2 = {"#include <iostream>", "int main() {", "    std::cout << 'Hello, world!';", "    return 0;", "}"};
     
+    std::ifstream fin("Prime_Submission.txt");
+    std::vector<std::string> code3;
+    std::string line;
+    while(std::getline(fin, line)) {
+        code3.push_back(line);
+    }
+    fin.close();
+
     Submission sub1(user1, code1);
     Submission sub2(user2, code2);
+    Submission sub3(user2, code3);
     
     problem1.AddSubmission(sub1);
     problem2.AddSubmission(sub2);
+    problem3.AddSubmission(sub3);
     
     std::cout << problem1 << std::endl;
     problem1.DisplaySubmissions();
     
     std::cout << problem2 << std::endl;
     problem2.DisplaySubmissions();
+
+    std::cout << problem3 << std::endl;
+    problem3.DisplaySubmissions();
     
-    sub1.run_submission();
+    sub1.runSubmission();
+    sub3.runSubmission();
     
     return 0;
 }
